@@ -1,0 +1,8 @@
+{
+  "key.category.healthindicators.main": "Nolann's Player Health Indicator",
+  "key.healthindicators.renderingEnabled": "Activer/Désactiver l'affichage",
+  "key.healthindicators.heartStackingEnabled": "Activer/Désactiver l'empilement des cœurs",
+  "key.healthindicators.increaseHeartOffset": "Augmenter le décalage des cœurs",
+  "key.healthindicators.decreaseHeartOffset": "Diminuer le décalage des cœurs",
+  "key.healthindicators.openConfig": "Ouvrir l'écran de configuration"
+}

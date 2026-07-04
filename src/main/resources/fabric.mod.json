@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "nolann-playerhealthindicator",
+  "version": "${version}",
+
+  "name": "Nolann's Player Health Indicator",
+  "description": "Nolann's Player Health Indicator is a fork of Gaider10's mod that add a config menu and support for the newest versions of the game !",
+  "authors": [
+    "Nolann321000",
+    "Gaider10",
+    "HuTAR"
+  ],
+
+  "license": "MIT",
+  "icon": "icon.png",
+
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      "me.andrew.healthindicators.HealthIndicatorsMod"
+    ],
+    "modmenu": [
+      "me.andrew.healthindicators.ModMenuIntegration"
+    ]
+  },
+  "mixins": [
+    "healthindicators.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.19.3",
+    "minecraft": "~26.2",
+    "java": ">=25",
+    "fabric-api": "*"
+  },
+  "suggests": {
+    "cloth-config": "*",
+    "modmenu": "*"
+  }
+}

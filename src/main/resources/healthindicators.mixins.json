@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "me.andrew.healthindicators.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "LivingEntityRendererMixin",
+    "AvatarRenderStateMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

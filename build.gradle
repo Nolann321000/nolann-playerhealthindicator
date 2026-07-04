@@ -1,0 +1,63 @@
+plugins {
+	id 'net.fabricmc.fabric-loom' version '1.17-SNAPSHOT'
+}
+
+version = "${project.mod_version}-${project.minecraft_version}"
+
+base {
+	archivesName = project.archives_base_name
+}
+
+repositories {
+	// Cloth Config's own maven, used for the optional config-screen integration.
+	maven {
+		name = 'shedaniel'
+		url = 'https://maven.shedaniel.me/'
+	}
+	// Mod Menu's own maven, used for the optional "click to open config" integration.
+	maven {
+		name = 'TerraformersMC'
+		url = 'https://maven.terraformersmc.com/'
+	}
+}
+
+dependencies {
+	// 26.2 ships fully unobfuscated, so there's no mappings artifact to declare anymore.
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+	// Cloth Config: compile-time only. If the player doesn't have it installed, the mod
+	// still runs fine, it just won't offer the in-game config screen (see ClothConfigIntegration).
+	compileOnly "me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}"
+
+	// Mod Menu: compile-time only, same idea - only used if the player has it installed
+	// (see ModMenuIntegration).
+	compileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+}
+
+processResources {
+	inputs.property "version", project.mod_version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": project.mod_version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 25
+}
+
+java {
+	withSourcesJar()
+
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
+}
+
+jar {
+	from("LICENSE") {
+		rename { "${it}_${project.archives_base_name}"}
+	}
+}
