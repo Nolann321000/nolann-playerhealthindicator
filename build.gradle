@@ -9,12 +9,12 @@ base {
 }
 
 repositories {
-	// Cloth Config's own maven, used for the optional config-screen integration.
+	// Cloth Config's own maven
 	maven {
 		name = 'shedaniel'
 		url = 'https://maven.shedaniel.me/'
 	}
-	// Mod Menu's own maven, used for the optional "click to open config" integration.
+	// Mod Menu's own maven
 	maven {
 		name = 'TerraformersMC'
 		url = 'https://maven.terraformersmc.com/'
@@ -22,19 +22,25 @@ repositories {
 }
 
 dependencies {
-	// 26.2 ships fully unobfuscated, so there's no mappings artifact to declare anymore.
+	// Fabric 26.2
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	// Cloth Config: compile-time only. If the player doesn't have it installed, the mod
-	// still runs fine, it just won't offer the in-game config screen (see ClothConfigIntegration).
+	// Cloth Config
 	compileOnly "me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}"
 
-	// Mod Menu: compile-time only, same idea - only used if the player has it installed
-	// (see ModMenuIntegration).
+	// Mod Menu
 	compileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+
+	testImplementation platform('org.junit:junit-bom:5.10.2')
+	testImplementation 'org.junit.jupiter:junit-jupiter'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.2'
+}
+
+test {
+	useJUnitPlatform()
 }
 
 processResources {
