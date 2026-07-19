@@ -21,6 +21,7 @@ import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.Mth;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -30,13 +31,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/**
- * Targets the generic LivingEntityRenderer (not AvatarRenderer directly) because in 26.2
- * AvatarRenderer no longer overrides extractRenderState/submit itself - both are only declared
- * (and overridden) on LivingEntityRenderer, so that's where Mixin can actually inject. Every
- * injected block is guarded with `instanceof AbstractClientPlayer` / `instanceof
- * HealthIndicatorsStateAccessor` checks so non-player entities are untouched.
- */
 @Mixin(LivingEntityRenderer.class)
 public abstract class LivingEntityRendererMixin<T extends LivingEntity, S extends LivingEntityRenderState, M extends EntityModel<? super S>> {
 
@@ -48,7 +42,11 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, S extend
                     player.getMaxHealth(),
                     player.getAbsorptionAmount(),
                     hasArmorEquipped(player),
-                    player.isLocalPlayer()
+                    player.isLocalPlayer(),
+                    player.hasEffect(MobEffects.POISON),
+                    player.hasEffect(MobEffects.WITHER),
+                    player.isCreative(),
+                    player.isSpectator()
             );
         }
     }
@@ -66,6 +64,21 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, S extend
             if (!accessor.healthIndicators$hasArmor()) return;
         }
 
+        if (accessor.healthIndicators$isCreative() && Config.getHideCreativeHearts()) {
+            return;
+        }
+
+        if (accessor.healthIndicators$isSpectator() && Config.getHideSpectatorHearts()) {
+            return;
+        }
+
+        if (state.distanceToCameraSq > 0) {
+            double distanceToPlayer = Math.sqrt(state.distanceToCameraSq);
+            if (!Config.isWithinHeartRenderDistance(distanceToPlayer)) {
+                return;
+            }
+        }
+
         poseStack.pushPose();
         poseStack.translate(0, state.boundingBoxHeight + 0.5f, 0);
         poseStack.mulPose(camera.orientation);
@@ -78,22 +91,31 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, S extend
                 + (accessor.healthIndicators$isLocalPlayer() && thirdPerson ? Config.getThirdPersonHeartOffset() : 0);
         poseStack.translate(0, offset, 0);
 
+        if (Config.getRenderThroughWallsEnabled()) {
+            poseStack.translate(0, 0, -1.5f);
+        }
+
         renderHeartRow(
                 poseStack,
                 submitNodeCollector,
                 accessor.healthIndicators$getHealth(),
                 accessor.healthIndicators$getMaxHealth(),
-                accessor.healthIndicators$getAbsorption()
+                accessor.healthIndicators$getAbsorption(),
+                Config.getRenderThroughWallsEnabled(),
+                accessor.healthIndicators$isPoisoned() && Config.getPoisonHeartsEnabled(),
+                accessor.healthIndicators$isWithered() && Config.getWitherHeartsEnabled()
         );
 
         poseStack.popPose();
     }
 
     @Unique
-    private static void renderHeartRow(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, float health, float maxHealth, float absorption) {
+    private static void renderHeartRow(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, float health, float maxHealth, float absorption, boolean throughWalls, boolean poisoned, boolean withered) {
         TextureAtlasSprite emptySprite = Minecraft.getInstance().getAtlasManager().get(new SpriteId(Sheets.GUI_SHEET, HeartType.EMPTY.texture));
         Identifier atlasTexture = emptySprite.atlasLocation();
-        RenderType renderType = RenderTypes.entityTranslucent(atlasTexture);
+        RenderType renderType = throughWalls
+                ? RenderTypes.textSeeThrough(atlasTexture)
+                : RenderTypes.entityTranslucent(atlasTexture);
 
         int healthRed = Mth.ceil(health);
         int maxHealthInt = Mth.ceil(maxHealth);
@@ -106,7 +128,7 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, S extend
         boolean lastYellowHalf = (healthYellow & 1) == 1;
         int heartsTotal = heartsNormal + heartsYellow;
 
-        int heartsPerRow = Config.getHeartStackingEnabled() ? 10 : Math.max(heartsTotal, 1);
+        int heartsPerRow = 10;
         int rowsTotal = (heartsTotal + heartsPerRow - 1) / heartsPerRow;
         int rowOffset = Math.max(10 - (rowsTotal - 2), 3);
 
@@ -125,16 +147,16 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, S extend
 
                 HeartType type;
                 if (heart < heartsRed) {
-                    type = HeartType.RED_FULL;
+                    type = HeartType.applyStatus(HeartType.RED_FULL, poisoned, withered);
                     if (heart == heartsRed - 1 && lastRedHalf) {
-                        type = HeartType.RED_HALF;
+                        type = HeartType.applyStatus(HeartType.RED_HALF, poisoned, withered);
                     }
                 } else if (heart < heartsNormal) {
                     type = HeartType.EMPTY;
                 } else {
-                    type = HeartType.YELLOW_FULL;
+                    type = HeartType.applyStatus(HeartType.YELLOW_FULL, poisoned, withered);
                     if (heart == heartsTotal - 1 && lastYellowHalf) {
-                        type = HeartType.YELLOW_HALF;
+                        type = HeartType.applyStatus(HeartType.YELLOW_HALF, poisoned, withered);
                     }
                 }
                 if (type != HeartType.EMPTY) {
@@ -155,10 +177,6 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, S extend
 
         float heartSize = 9F;
 
-        // The ENTITY vertex format needs Position, Color, UV0 (texture), UV1 (overlay),
-        // UV2 (lightmap) and Normal on every vertex - a bare position+uv isn't enough
-        // (that's what crashed before). Full-bright + no overlay since these are drawn like a
-        // HUD icon, not lit scenery.
         vertex(pose, buffer, x, y - heartSize, z, minU, maxV);
         vertex(pose, buffer, x - heartSize, y - heartSize, z, maxU, maxV);
         vertex(pose, buffer, x - heartSize, y, z, maxU, minV);
