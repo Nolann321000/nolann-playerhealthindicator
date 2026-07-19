@@ -17,14 +17,26 @@ public class AvatarRenderStateMixin implements HealthIndicatorsStateAccessor {
     private boolean healthIndicators$hasArmor;
     @Unique
     private boolean healthIndicators$isLocalPlayer;
+    @Unique
+    private boolean healthIndicators$poisoned;
+    @Unique
+    private boolean healthIndicators$withered;
+    @Unique
+    private boolean healthIndicators$creative;
+    @Unique
+    private boolean healthIndicators$spectator;
 
     @Override
-    public void healthIndicators$setData(float health, float maxHealth, float absorption, boolean hasArmor, boolean isLocalPlayer) {
+    public void healthIndicators$setData(float health, float maxHealth, float absorption, boolean hasArmor, boolean isLocalPlayer, boolean poisoned, boolean withered, boolean creative, boolean spectator) {
         this.healthIndicators$health = health;
         this.healthIndicators$maxHealth = maxHealth;
         this.healthIndicators$absorption = absorption;
         this.healthIndicators$hasArmor = hasArmor;
         this.healthIndicators$isLocalPlayer = isLocalPlayer;
+        this.healthIndicators$poisoned = poisoned;
+        this.healthIndicators$withered = withered;
+        this.healthIndicators$creative = creative;
+        this.healthIndicators$spectator = spectator;
     }
 
     @Override
@@ -50,5 +62,25 @@ public class AvatarRenderStateMixin implements HealthIndicatorsStateAccessor {
     @Override
     public boolean healthIndicators$isLocalPlayer() {
         return healthIndicators$isLocalPlayer;
+    }
+
+    @Override
+    public boolean healthIndicators$isPoisoned() {
+        return healthIndicators$poisoned;
+    }
+
+    @Override
+    public boolean healthIndicators$isWithered() {
+        return healthIndicators$withered;
+    }
+
+    @Override
+    public boolean healthIndicators$isCreative() {
+        return healthIndicators$creative;
+    }
+
+    @Override
+    public boolean healthIndicators$isSpectator() {
+        return healthIndicators$spectator;
     }
 }
