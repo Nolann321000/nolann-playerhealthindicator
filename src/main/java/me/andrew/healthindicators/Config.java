@@ -14,10 +14,15 @@ public class Config {
     private static Config INSTANCE = new Config();
 
     private boolean renderingEnabled = true;
-    private boolean heartStackingEnabled = true;
     private int heartOffset = 10;
+    private int heartRenderDistance = 16;
     private boolean invisibleHeartsEnabled = true;
     private boolean showOwnHeartsInThirdPerson = false;
+    private boolean renderThroughWallsEnabled = false;
+    private boolean poisonHeartsEnabled = true;
+    private boolean witherHeartsEnabled = true;
+    private boolean hideCreativeHearts = true;
+    private boolean hideSpectatorHearts = true;
     private int invisibleHeartOffset = -10;
     private int thirdPersonHeartOffset = -10;
 
@@ -30,15 +35,6 @@ public class Config {
         save();
     }
 
-    public static boolean getHeartStackingEnabled() {
-        return INSTANCE.heartStackingEnabled;
-    }
-
-    public static void setHeartStackingEnabled(boolean heartStackingEnabled) {
-        INSTANCE.heartStackingEnabled = heartStackingEnabled;
-        save();
-    }
-
     public static int getHeartOffset() {
         return INSTANCE.heartOffset;
     }
@@ -46,6 +42,19 @@ public class Config {
     public static void setHeartOffset(int heartOffset) {
         INSTANCE.heartOffset = heartOffset;
         save();
+    }
+
+    public static int getHeartRenderDistance() {
+        return INSTANCE.heartRenderDistance;
+    }
+
+    public static void setHeartRenderDistance(int heartRenderDistance) {
+        INSTANCE.heartRenderDistance = heartRenderDistance;
+        save();
+    }
+
+    public static boolean isWithinHeartRenderDistance(double distance) {
+        return distance <= INSTANCE.heartRenderDistance;
     }
 
     public static boolean getInvisibleHeartsEnabled() {
@@ -63,6 +72,51 @@ public class Config {
 
     public static void setShowOwnHeartsInThirdPerson(boolean showOwnHeartsInThirdPerson) {
         INSTANCE.showOwnHeartsInThirdPerson = showOwnHeartsInThirdPerson;
+        save();
+    }
+
+    public static boolean getRenderThroughWallsEnabled() {
+        return INSTANCE.renderThroughWallsEnabled;
+    }
+
+    public static void setRenderThroughWallsEnabled(boolean renderThroughWallsEnabled) {
+        INSTANCE.renderThroughWallsEnabled = renderThroughWallsEnabled;
+        save();
+    }
+
+    public static boolean getPoisonHeartsEnabled() {
+        return INSTANCE.poisonHeartsEnabled;
+    }
+
+    public static void setPoisonHeartsEnabled(boolean poisonHeartsEnabled) {
+        INSTANCE.poisonHeartsEnabled = poisonHeartsEnabled;
+        save();
+    }
+
+    public static boolean getWitherHeartsEnabled() {
+        return INSTANCE.witherHeartsEnabled;
+    }
+
+    public static void setWitherHeartsEnabled(boolean witherHeartsEnabled) {
+        INSTANCE.witherHeartsEnabled = witherHeartsEnabled;
+        save();
+    }
+
+    public static boolean getHideCreativeHearts() {
+        return INSTANCE.hideCreativeHearts;
+    }
+
+    public static void setHideCreativeHearts(boolean hideCreativeHearts) {
+        INSTANCE.hideCreativeHearts = hideCreativeHearts;
+        save();
+    }
+
+    public static boolean getHideSpectatorHearts() {
+        return INSTANCE.hideSpectatorHearts;
+    }
+
+    public static void setHideSpectatorHearts(boolean hideSpectatorHearts) {
+        INSTANCE.hideSpectatorHearts = hideSpectatorHearts;
         save();
     }
 
