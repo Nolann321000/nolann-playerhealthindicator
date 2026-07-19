@@ -22,11 +22,6 @@ public class HealthIndicatorsMod implements ModInitializer {
             InputConstants.UNKNOWN.getValue(),
             KEY_CATEGORY
     ));
-    public static final KeyMapping HEART_STACKING_ENABLED_KEY_BINDING = KeyMappingHelper.registerKeyMapping(new KeyMapping(
-            "key." + MOD_ID + ".heartStackingEnabled",
-            InputConstants.UNKNOWN.getValue(),
-            KEY_CATEGORY
-    ));
     public static final KeyMapping INCREASE_HEART_OFFSET_KEY_BINDING = KeyMappingHelper.registerKeyMapping(new KeyMapping(
             "key." + MOD_ID + ".increaseHeartOffset",
             InputConstants.UNKNOWN.getValue(),
@@ -53,14 +48,7 @@ public class HealthIndicatorsMod implements ModInitializer {
             while (RENDERING_ENABLED_KEY_BINDING.consumeClick()) {
                 Config.setRenderingEnabled(!Config.getRenderingEnabled());
                 if (client.player != null) {
-                    client.player.sendOverlayMessage(Component.literal((Config.getRenderingEnabled() ? "Enabled" : "Disabled") + " Health Indicators"));
-                }
-            }
-
-            while (HEART_STACKING_ENABLED_KEY_BINDING.consumeClick()) {
-                Config.setHeartStackingEnabled(!Config.getHeartStackingEnabled());
-                if (client.player != null) {
-                    client.player.sendOverlayMessage(Component.literal((Config.getHeartStackingEnabled() ? "Enabled" : "Disabled") + " Heart Stacking"));
+                    client.player.sendOverlayMessage(Component.literal((Config.getRenderingEnabled() ? "Enabled" : "Disabled") + "Nolann's Player Health Indicators"));
                 }
             }
 
@@ -82,7 +70,7 @@ public class HealthIndicatorsMod implements ModInitializer {
                 if (CLOTH_CONFIG_PRESENT) {
                     Minecraft.getInstance().gui.setScreen(ClothConfigIntegration.buildConfigScreen(Minecraft.getInstance().gui.screen()));
                 } else if (client.player != null) {
-                    client.player.sendOverlayMessage(Component.literal("Install Cloth Config to access the config screen"));
+                    client.player.sendOverlayMessage(Component.literal("Install Cloth Config to access the config screen !"));
                 }
             }
         });
