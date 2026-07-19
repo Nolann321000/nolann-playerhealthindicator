@@ -1,14 +1,7 @@
 package me.andrew.healthindicators;
 
-/**
- * Implemented by a mixin on AvatarRenderState (see AvatarRenderStateMixin). The new 26.2
- * rendering pipeline extracts entity data into an immutable-ish "render state" object on the
- * main thread, then renders/submits it later - so the entity itself isn't available anymore at
- * submit time. We stash the health/armor data we need onto the state object during
- * extractRenderState, and read it back here during submit.
- */
 public interface HealthIndicatorsStateAccessor {
-    void healthIndicators$setData(float health, float maxHealth, float absorption, boolean hasArmor, boolean isLocalPlayer);
+    void healthIndicators$setData(float health, float maxHealth, float absorption, boolean hasArmor, boolean isLocalPlayer, boolean poisoned, boolean withered, boolean creative, boolean spectator);
 
     float healthIndicators$getHealth();
 
@@ -19,4 +12,12 @@ public interface HealthIndicatorsStateAccessor {
     boolean healthIndicators$hasArmor();
 
     boolean healthIndicators$isLocalPlayer();
+
+    boolean healthIndicators$isPoisoned();
+
+    boolean healthIndicators$isWithered();
+
+    boolean healthIndicators$isCreative();
+
+    boolean healthIndicators$isSpectator();
 }
